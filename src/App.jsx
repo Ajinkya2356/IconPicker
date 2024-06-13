@@ -12,7 +12,7 @@ function App() {
         columnsInOnePage={10}
         iconHeight={30}
         iconWidth={30}
-        pickerHeight={300}
+        pickerHeight={500}
         pickerWidth={500}
       />
     </>

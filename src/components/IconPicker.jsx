@@ -22,24 +22,31 @@ const IconPicker = ({
   pickerHeight = 500,
   pickerWidth = 500,
 }) => {
+  const [rows, setRows] = useState(rowsInOnePage);
+  const [columns, setColumns] = useState(columnsInOnePage);
   const [visible, setVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [iconsPerPage, setIconsPerPage] = useState(100);
+  const [iconsPerPage, setIconsPerPage] = useState(
+    rowsInOnePage * columnsInOnePage
+  );
   const [selectedIcon, setSelectedIcon] = useState(null);
   const [total, setTotal] = useState(
     Math.ceil(Object.keys(feather.icons).length / iconsPerPage)
   );
   useEffect(() => {
     setTotal(Math.ceil(Object.keys(feather.icons).length / iconsPerPage));
-    feather.replace();
-  }, [currentPage, iconsPerPage, visible]);
+    feather.replace({ height: iconHeight, width: iconWidth });
+  }, [iconsPerPage, rows, columns]);
   useEffect(() => {
-    const gap = 20;
-    const iconArea = (iconHeight + gap) * (iconWidth + gap);
-    const containerArea = pickerHeight * pickerWidth;
-    const maxIconsPerPage = Math.floor(containerArea / iconArea) ;
-    setIconsPerPage(maxIconsPerPage);
-  }, [iconWidth, iconHeight, pickerHeight, pickerWidth]);
+    const gap = 30;
+    const maxHorizontalIcons = Math.floor(pickerWidth / (iconWidth + gap));
+    const maxVerticalIcons = Math.floor(pickerHeight / (iconHeight + gap));
+    setRows(maxVerticalIcons);
+    setColumns(maxHorizontalIcons);
+    const newIconsPerPage = maxVerticalIcons * maxHorizontalIcons;
+    setIconsPerPage(Math.min(iconsPerPage, newIconsPerPage));
+    feather.replace({ height: iconHeight, width: iconWidth });
+  }, [iconWidth, iconHeight, pickerHeight, pickerWidth, visible, currentPage]);
   return (
     <div
       style={{
@@ -47,8 +54,8 @@ const IconPicker = ({
         border: "2px solid white",
         padding: "10px",
         flexDirection: "column",
-        height: `${pickerHeight}px`,
-        width: `${pickerWidth}px`,
+        height: `400px`,
+        width: `400px`,
         gap: "10px",
       }}
     >
@@ -115,10 +122,11 @@ const IconPicker = ({
         <div
           style={{
             display: "grid",
-            gridTemplateRows: `repeat(${rowsInOnePage}, 1fr)`,
-            gridTemplateColumns: `repeat(${columnsInOnePage}, 1fr)`,
+            gridTemplateRows: `repeat(${rows}, ${iconWidth}px)`,
+            gridTemplateColumns: `repeat(${columns}, ${iconHeight}px )`,
+            height: `${pickerHeight}px`,
+            width: `${pickerWidth}px`,
             gap: "20px",
-            padding: "10px",
           }}
         >
           {Object.keys(feather.icons)
@@ -132,12 +140,13 @@ const IconPicker = ({
                     setVisible(false);
                   }}
                   style={{
-                    border: "2px solid white",
-                    padding: "3px",
+                    border: "1px solid white",
                     cursor: "pointer",
                     borderRadius: "5px",
-                    height: `${iconHeight}px`,
-                    width: `${iconWidth}px`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "5px",
                   }}
                 >
                   <i data-feather={icon}></i>
